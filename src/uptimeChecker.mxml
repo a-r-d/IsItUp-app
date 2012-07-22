@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TabbedViewNavigatorApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
+								  xmlns:s="library://ns.adobe.com/flex/spark" applicationDPI="160">
+	<s:ViewNavigator label="Quick Check" width="100%" height="100%" firstView="views.QuickCheckView"/>
+	<s:ViewNavigator label="Check List" width="100%" height="100%" firstView="views.CheckListView"/>
+	<s:ViewNavigator label="Edit List" width="100%" height="100%" firstView="views.EditListView"/>
+	
+	<!--
+	<s:ViewNavigator label="Prefs" width="100%" height="100%" firstView="views.PrefsView"/>
+	-->
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+</s:TabbedViewNavigatorApplication>

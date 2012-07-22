@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark"  title="Is It Up?"
+		contentCreationComplete="view1_contentCreationCompleteHandler(event)">
+
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.IList;
+			import mx.events.FlexEvent;
+			
+			[Bindable]
+			public var mainDataXML:XML;
+			
+			[Bindable]
+			public var dataList:IList;
+					
+			protected function view1_contentCreationCompleteHandler(event:FlexEvent):void
+			{
+				var datXMLFile:File = File.applicationStorageDirectory.resolvePath("data.xml");
+				if(datXMLFile.exists) {
+					var stream:FileStream = new FileStream();
+					stream.open( datXMLFile, FileMode.READ);
+					mainDataXML = new XML(stream.readUTF());
+					stream.close();	
+					
+					trace("XML listing or urls: " + mainDataXML.toString());
+				} else {
+					mainDataXML = <urlList>
+									<url>
+										<address>http://www.a-r-d.me</address>
+										<last>200</last>
+										<time>1342915872000</time>
+										<latency>555 milliseconds</latency>
+									</url>
+								</urlList>;	
+				}
+
+				
+				updateList();
+			}
+			
+			protected function updateList():void {
+				if(dataList != null) 
+					dataList.removeAll();
+				
+				var arrListContents:Array = [];
+				for(var i:int = 0; i < mainDataXML.url.length(); i++ ) {
+					var thisXML:XML = mainDataXML.url[i];
+					var dispStr:String = thisXML.last.toString() + " | " + thisXML.address.toString() + " | " + thisXML.latency.toString();	
+					arrListContents.push(dispStr);
+				}
+				
+				// add this to list:
+				arrayToDataList(arrListContents)
+			}
+			
+			
+			
+			protected function arrayToDataList(arr:Array):void {
+				var spacingsList:Array = [];
+				for(var ii:int = 0; ii < arr.length; ii++){
+					// This is undefined.
+					trace("Value: " + arr[ii]);
+					var tmpObj:Object = {value:arr[ii]};
+					spacingsList.push(tmpObj);
+				}
+				
+				dataList = new ArrayList(spacingsList);
+			}
+			
+			// delete
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				var selected:int = lstUrlList.selectedIndex;
+				
+				if(selected == -1)
+						return;
+				
+				dataList.removeItemAt(selected);
+				
+				var tempXMLData:XML = mainDataXML;
+				delete tempXMLData.url[selected];
+				mainDataXML = tempXMLData;
+				
+				updateList();
+
+			}
+			
+			
+			// save entire list with edits:
+			protected function btnSaveList_clickHandler(event:MouseEvent):void
+			{
+				// save it again:
+				var datXMLFile:File = File.applicationStorageDirectory.resolvePath("data.xml");
+				var stream2:FileStream = new FileStream();
+				stream2.open(datXMLFile, FileMode.WRITE );
+				stream2.writeUTF(mainDataXML.toString());
+				stream2.close();
+				
+				trace("Data Saved!");
+			}
+			
+		]]>
+	</fx:Script>
+
+
+<s:List id="lstUrlList" x="10" y="64" width="300" height="294" dataProvider="{dataList}">
+	<s:itemRenderer>
+		<fx:Component>
+			<s:ItemRenderer height="60" styleName="line_item">
+				<s:states>
+					<s:State name="normal" />
+					<s:State name="selected" />
+					<s:State name="down" />
+				</s:states>
+				
+				<s:Rect left="0" right="0" top="0" bottom="0">
+					<s:fill>
+						<s:SolidColor color="0xF9FDC0" alpha="0" alpha.down="0.6" alpha.selected="0"/>
+					</s:fill>
+				</s:Rect>
+				<s:Label color="black" id="valueLabel" text="{data.value}" top="15" left="10" right="40"/>
+			</s:ItemRenderer>
+		</fx:Component>
+	</s:itemRenderer>
+</s:List>
+	<s:Button id="btnDeleteNode" x="8" y="13" label="Delete Selected"
+			  click="button1_clickHandler(event)"/>
+	<s:Button id="btnSaveList" x="192" y="13" width="118" label="Save List"
+			  click="btnSaveList_clickHandler(event)"/>
+	
+	
+	<fx:Declarations>
+		<!-- this needs to be here. Like a forced import or something. -->
+		<s:ArrayList id="exampleList">
+			<fx:Object value="derp'"/>
+		</s:ArrayList>
+		
+	</fx:Declarations>
+</s:View>

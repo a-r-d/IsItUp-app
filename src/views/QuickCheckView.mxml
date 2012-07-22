@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" title="Is It Up?"
+		contentCreationComplete="view1_contentCreationCompleteHandler(event)">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			public var timeElapsed:Number;
+			public var lastAdd:String;
+			
+			protected function btnAddHTTP_clickHandler(event:MouseEvent):void
+			{
+				var old:String = txtURLinpt.text;
+				var newVal:String = "HTTP://" + old;
+				txtURLinpt.text = newVal;
+			}
+			
+			
+			protected function btnAddCom_clickHandler(event:MouseEvent):void
+			{
+				var old:String = txtURLinpt.text;
+				var newVal:String = old + ".com";
+				txtURLinpt.text = newVal;
+			}
+			
+			protected function btnAddNet_clickHandler(event:MouseEvent):void
+			{
+				var old:String = txtURLinpt.text;
+				var newVal:String = old + ".net";
+				txtURLinpt.text = newVal;
+			}
+			
+			protected function btnAddORG_clickHandler(event:MouseEvent):void
+			{
+				var old:String = txtURLinpt.text;
+				var newVal:String = old + ".org";
+				txtURLinpt.text = newVal;
+			}
+			
+			protected function btnAddME_clickHandler(event:MouseEvent):void
+			{
+				var old:String = txtURLinpt.text;
+				var newVal:String = old + ".me";
+				txtURLinpt.text = newVal;
+			}
+			
+			protected function btnAddWWW_clickHandler(event:MouseEvent):void
+			{
+				var old:String = txtURLinpt.text;
+				var newVal:String;
+				
+				if(old.match("HTTP://")) {
+					var splits:Array = old.split("//");
+					
+					newVal = "HTTP://" + "www." + splits[1];
+					txtURLinpt.text = newVal;
+				} else {
+					newVal= "www." + old;
+					txtURLinpt.text = newVal;
+				}
+			}
+			
+			protected function btnClearAll_clickHandler(event:MouseEvent):void
+			{
+				txtURLinpt.text = "";
+			}
+			
+			protected function btnGoToLink_clickHandler(event:MouseEvent):void
+			{
+				navigateToURL(new URLRequest(txtURLinpt.text));
+			}
+			
+			protected function btnTestNow_clickHandler(event:MouseEvent):void
+			{
+				mainHTTPTester.url = txtURLinpt.text;
+				var my_date:Date = new Date();
+				timeElapsed = my_date.time;
+				imgBusy.visible = true;
+				mainHTTPTester.send();
+			}
+			
+			
+			protected function mainHTTPTester_faultHandler(event:FaultEvent):void
+			{
+				trace("faulted out");
+				var my_date:Date = new Date();
+				lblResponseTime.text = (my_date.time - timeElapsed).toString() + " milliseconds";
+				
+				var code:int = event.statusCode;
+				lblResponseCode.text = code.toString();
+				changeCodeColor(code);
+				
+				lblMessage.text = event.message.toString();
+				
+				imgBusy.visible = false;
+				
+			}
+			
+			protected function mainHTTPTester_resultHandler(event:ResultEvent):void
+			{
+				trace("got result");
+				var my_date:Date = new Date();
+				lblResponseTime.text = (my_date.time + timeElapsed).toString() + " milliseconds";
+				
+				var code:int = event.statusCode;
+				lblResponseCode.text = code.toString();
+				changeCodeColor(code);
+				
+				lblMessage.text = event.message.toString();
+				
+				imgBusy.visible = false;
+			}
+			
+			
+			protected function changeCodeColor(code:int):void {
+				if(code == 200) {
+					lblResponseCode.setStyle("color", "Green");
+				} else if(code == 500) {
+					lblResponseCode.setStyle("color", "Blue");
+				} else{
+					lblResponseCode.setStyle("color", "Red");
+				}
+			}
+			
+			
+			// add to data.xml
+			protected function btnAddToList_clickHandler(event:MouseEvent):void
+			{
+				var newAdd:String = txtURLinpt.text;
+				if(newAdd == lastAdd) {
+					trace("Already added");
+					return;
+				}
+				
+				var mainDataXML:XML;
+				var datXMLFile:File = File.applicationStorageDirectory.resolvePath("data.xml");
+				if(datXMLFile.exists) {
+					var stream:FileStream = new FileStream();
+					stream.open( datXMLFile, FileMode.READ);
+					mainDataXML = new XML(stream.readUTF());
+					stream.close();		
+				} else {
+					mainDataXML = <urlList>
+										<url>
+											<address>http://www.a-r-d.me</address>
+											<last>200</last>
+											<time>1342915872000</time>
+											<latency>555 milliseconds</latency>
+										</url>
+									</urlList>;	
+				}
+				
+				// add a new node:
+				var newNode:XML = <url></url>;
+				newNode.address = txtURLinpt.text;
+				newNode.last = lblResponseCode.text;
+				var my_date:Date = new Date();
+				newNode.time = my_date.time.toString();
+				newNode.latency = lblResponseTime.text;
+				mainDataXML.appendChild(newNode);
+				
+				trace("XML DOC: " + mainDataXML.toString());
+				
+				// save it again:
+				var stream2:FileStream = new FileStream();
+				stream2.open(datXMLFile, FileMode.WRITE );
+				stream2.writeUTF(mainDataXML.toString());
+				stream2.close();
+							
+				lastAdd = txtURLinpt.text;
+			}
+			
+			protected function view1_contentCreationCompleteHandler(event:FlexEvent):void
+			{
+				var datXMLFile:File = File.applicationStorageDirectory.resolvePath("data.xml");
+				if(datXMLFile.exists) {
+					var stream:FileStream = new FileStream();
+					stream.open( datXMLFile, FileMode.READ);
+					var mainDataXML:XML = new XML(stream.readUTF());
+					stream.close();	
+					
+					trace("XML listing or urls: " + mainDataXML.toString());
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		<s:HTTPService
+			id="mainHTTPTester"
+			url="http://google.com" 
+			result="mainHTTPTester_resultHandler(event)"
+			fault="mainHTTPTester_faultHandler(event)">
+		</s:HTTPService>
+	</fx:Declarations>
+	<s:Button id="btnTestNow" x="204" y="71" width="109" height="74" label="Test Now"
+			  click="btnTestNow_clickHandler(event)" color="#2ECD26"/>
+	<s:Label x="10" y="279" fontSize="14" text="Time To Respond:"/>
+	<s:Label x="12" y="300" fontSize="14" text="Response Code:"/>
+	<s:Label x="11" y="322" fontSize="14" text="Related Message:"/>
+	<s:Label id="lblResponseTime" x="155" y="280" width="129" height="21" color="#FF0000"
+			 fontSize="15" text="0"/>
+	<s:Label id="lblResponseCode" x="155" y="299" width="129" height="16" color="#FF0000"
+			 fontSize="18" text="none" />
+	<s:TextInput id="txtURLinpt" x="10" y="29" width="269"/>
+	<s:Label x="11" y="7" text="Enter a url below to check the status:"/>
+	<s:Button id="btnGoToLink" x="204" y="191" width="107" height="32" label="Go To in Browser"
+			  click="btnGoToLink_clickHandler(event)" fontSize="10"/>
+	<s:Button id="btnClearAll" x="204" y="153" width="107" height="32" label="Clear Contents"
+			  click="btnClearAll_clickHandler(event)" fontSize="10"/>
+	<s:Button id="btnAddToList" x="204" y="234" width="107" height="32" label="Add To List"
+			  click="btnAddToList_clickHandler(event)" fontSize="10"/>
+	<s:Button id="btnAddHTTP" x="12" y="78" width="75" height="38" label="HTTP://"
+			  click="btnAddHTTP_clickHandler(event)" fontSize="12"/>
+	<s:Button id="btnAddWWW" x="106" y="80" width="75" height="38" label="www."
+			  click="btnAddWWW_clickHandler(event)" fontSize="12"/>
+	<s:Button id="btnAddME" x="106" y="133" width="75" height="38" label=".me"
+			  click="btnAddME_clickHandler(event)" fontSize="12"/>
+	<s:Button id="btnAddCom" x="12" y="132" width="74" height="38" label=".com"
+			  click="btnAddCom_clickHandler(event)" fontSize="14"/>
+	<s:Button id="btnAddNet" x="106" y="185" width="74" height="38" label=".net"
+			  click="btnAddNet_clickHandler(event)" fontSize="14"/>
+	<s:Button id="btnAddOrg" x="12" y="185" width="74" height="38" label=".org"
+			  click="btnAddORG_clickHandler(event)" fontSize="14"/>
+	<s:Label x="10" y="258" text="Results:"/>
+	<s:Label id="lblMessage" x="155" y="322" width="155" height="32" fontSize="10" text="..."/>
+	<s:BusyIndicator id="imgBusy" x="287" y="32" visible="false"/>
+</s:View>
