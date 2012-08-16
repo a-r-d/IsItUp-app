@@ -1,0 +1,41 @@
+/* CSS file */
+@namespace s "library://ns.adobe.com/flex/spark";
+
+
+/* Fairly obvious what this is */
+global
+{
+	symbol-color: #000000;
+	chrome-color: #B5DAFF;
+	font-weight: bold;
+	
+	/* background color of each view */
+	background-color:#ffffff;
+	
+	vertical-align: top;
+	text-align: left;
+	font-size: 16;
+	/* content-background-alpha: 0.62; */
+}
+
+/** this is the bar the top of the app **/
+s|ActionBar{
+	chromeColor:#B5DAFF; /* more like background color */
+	titleAlign:center; 
+	defaultButtonAppearance: beveled;
+}
+
+/** Lists obviously **/
+s|List{
+	color:#B5DAFF;
+	chromeColor:#B5DAFF;
+}
+
+
+/* This is the styling of the tabbed navigator */
+s|TabbedViewNavigator #tabBar { 
+	chromeColor: #4D6DFF; /* color of background on buttons */
+	color: #ffffff; /* color of text on tab names */
+	textDecoration:underline; 
+}
+

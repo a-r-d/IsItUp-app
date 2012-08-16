@@ -1,0 +1,25 @@
+/* CSS file */
+@namespace s "library://ns.adobe.com/flex/spark";
+
+
+global
+{
+	symbol-color: #000000;
+	chrome-color: #88B859;
+	font-weight: bold;
+	content-background-color: #FFFFFF;
+	vertical-align: top;
+	text-align: left;
+	font-size: 16;
+	/* content-background-alpha: 0.62; */
+}
+s|ActionBar{
+	chromeColor:#8DAB46;
+	titleAlign:center;
+	defaultButtonAppearance: beveled;
+}
+
+s|List{
+	color:#88B859;
+	chromeColor:#8DAB46;
+}

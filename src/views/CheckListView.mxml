@@ -17,7 +17,7 @@
 			public var mainDataXML:XML;
 			
 			[Bindable]
-			public var dataList:IList;
+			public var dataList:ArrayList = new ArrayList();
 			
 			
 			public var urlCount:int = 0;
@@ -110,29 +110,22 @@
 				if(dataList != null) 
 					dataList.removeAll();
 				
+				// push each node as a sep xml object onto array
 				var arrListContents:Array = [];
-				for(var i:int = 0; i < mainDataXML.url.length(); i++ ) {
-					var thisXML:XML = mainDataXML.url[i];
-					var dispStr:String = thisXML.last.toString() + " | " + thisXML.address.toString() + " | " + thisXML.latency.toString();	
-					arrListContents.push(dispStr);
+				var numUrls:int = mainDataXML.url.length();
+				for(var i:int = 0; i < numUrls; i++) {
+					var url:XML = mainDataXML.url[i];
+					arrListContents.push(url);
 				}
 				
 				// add this to list:
 				arrayToDataList(arrListContents)
 			}
 			
-
 			
-			protected function arrayToDataList(arr:Array):void {
-				var spacingsList:Array = [];
-				for(var ii:int = 0; ii < arr.length; ii++){
-					// This is undefined.
-					trace("Value: " + arr[ii]);
-					var tmpObj:Object = {value:arr[ii]};
-					spacingsList.push(tmpObj);
-				}
-				
-				dataList = new ArrayList(spacingsList);
+			
+			protected function arrayToDataList(arr:Array):void {	
+				dataList = new ArrayList(arr);
 			}
 			
 			protected function view1_contentCreationCompleteHandler(event:FlexEvent):void
@@ -193,34 +186,16 @@
 	</fx:Declarations>
 	
 	
-	<s:List id="lstUrlList" x="10" y="64" width="300" height="294" dataProvider="{dataList}">
-		<s:itemRenderer>
-			<fx:Component>
-				<s:ItemRenderer height="60" styleName="line_item">
-					<s:states>
-						<s:State name="normal" />
-						<s:State name="selected" />
-						<s:State name="down" />
-					</s:states>
-					
-					<s:Rect left="0" right="0" top="0" bottom="0">
-						<s:fill>
-							<s:SolidColor color="0xF9FDC0" alpha="0.1" alpha.down="0.6" alpha.selected="0"/>
-						</s:fill>
-					</s:Rect>
-					<s:Label color="black" id="valueLabel" text="{data.value}" top="15" left="10" right="40"/>
-				</s:ItemRenderer>
-			</fx:Component>
-		</s:itemRenderer>
+	<s:List id="lstUrlList" x="0" y="64" width="100%" height="90%" dataProvider="{dataList}" itemRenderer="UrlResultRenderer">
 	</s:List>
 	
 	<s:BusyIndicator id="imgBusy" x="209" y="23" visible="false"/>
 	<s:Button id="btnRefreshList" x="10" y="13" width="113" label="Refresh List"
-			  click="btnRefreshList_clickHandler(event)"/>
-	<s:Label id="lblTotalCount" x="293" y="20" width="27" height="33" fontSize="30" text="0"
+			  click="btnRefreshList_clickHandler(event)" fontSize="13"/>
+	<s:Label id="lblTotalCount" x="293" y="20" width="27" height="33" fontSize="19" text="0"
 			 verticalAlign="bottom"/>
-	<s:Label id="lblCurrentCount" x="257" y="25" width="27" height="33" fontSize="30" text="0"/>
+	<s:Label id="lblCurrentCount" x="257" y="25" width="27" height="33" fontSize="19" text="0"/>
 	<s:Label x="277" y="23" width="17" height="33" fontSize="36" text="/"/>
-	<s:Button id="btnSaveList" x="134" y="13" width="56" label="Save"
-			  click="btnSaveList_clickHandler(event)"/>
+	<s:Button id="btnSaveList" x="134" y="13" width="58" label="Save"
+			  click="btnSaveList_clickHandler(event)" fontSize="13"/>
 </s:View>

@@ -15,7 +15,7 @@
 			protected function btnAddHTTP_clickHandler(event:MouseEvent):void
 			{
 				var old:String = txtURLinpt.text;
-				var newVal:String = "HTTP://" + old;
+				var newVal:String = "http://" + old;
 				txtURLinpt.text = newVal;
 			}
 			
@@ -53,10 +53,10 @@
 				var old:String = txtURLinpt.text;
 				var newVal:String;
 				
-				if(old.match("HTTP://")) {
+				if(old.match("http://")) {
 					var splits:Array = old.split("//");
 					
-					newVal = "HTTP://" + "www." + splits[1];
+					newVal = "http://" + "www." + splits[1];
 					txtURLinpt.text = newVal;
 				} else {
 					newVal= "www." + old;
@@ -71,11 +71,13 @@
 			
 			protected function btnGoToLink_clickHandler(event:MouseEvent):void
 			{
+				if(txtURLinpt.text.length < 3) return;
 				navigateToURL(new URLRequest(txtURLinpt.text));
 			}
 			
 			protected function btnTestNow_clickHandler(event:MouseEvent):void
 			{
+				if(txtURLinpt.text.length < 3) return;
 				mainHTTPTester.url = txtURLinpt.text;
 				var my_date:Date = new Date();
 				timeElapsed = my_date.time;
@@ -130,6 +132,8 @@
 			// add to data.xml
 			protected function btnAddToList_clickHandler(event:MouseEvent):void
 			{
+				if(txtURLinpt.text.length < 3) return;
+				
 				var newAdd:String = txtURLinpt.text;
 				if(newAdd == lastAdd) {
 					trace("Already added");
@@ -196,11 +200,12 @@
 			id="mainHTTPTester"
 			url="http://google.com" 
 			result="mainHTTPTester_resultHandler(event)"
-			fault="mainHTTPTester_faultHandler(event)">
+			fault="mainHTTPTester_faultHandler(event)"
+			requestTimeout="5">
 		</s:HTTPService>
 	</fx:Declarations>
 	<s:Button id="btnTestNow" x="204" y="71" width="109" height="74" label="Test Now"
-			  click="btnTestNow_clickHandler(event)" color="#2ECD26"/>
+			  click="btnTestNow_clickHandler(event)" color="#FFFFFF"/>
 	<s:Label x="10" y="279" fontSize="14" text="Time To Respond:"/>
 	<s:Label x="12" y="300" fontSize="14" text="Response Code:"/>
 	<s:Label x="11" y="322" fontSize="14" text="Related Message:"/>
